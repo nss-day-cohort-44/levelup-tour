@@ -7,22 +7,22 @@ from levelupapi.models import GameType
 
 
 class GameTypes(ViewSet):
-    """Level up game types"""
+    """Level up games"""
 
-    def retrieve(self, request, id=None):
-        """Handle GET requests for single game type
+    def retrieve(self, request, pk=None):
+        """Handle GET requests for single game
 
         Returns:
-            Response -- JSON serialized game type
+            Response -- JSON serialized game instance
         """
         try:
-            # pk is how you reference the `id` column
-            game_type = GameType.objects.get(pk=id)
+            # SELECT * FROM levelupapi_gametype WHERE id = ?
+            game_type = GameType.objects.get(pk=pk)
 
-            serializer = GameTypeSerializer(game_type, context={'request': request})
+            serializer = GameTypeSerializer(
+                game_type, context={'request': request})
 
             return Response(serializer.data)
-
         except Exception as ex:
             return HttpResponseServerError(ex)
 
@@ -34,16 +34,12 @@ class GameTypes(ViewSet):
         """
         gametypes = GameType.objects.all()
 
-        # Note the addtional `many=True` argument to the
-        # serializer. It's needed when you are serializing
-        # a list of objects instead of a single object.
         serializer = GameTypeSerializer(
             gametypes, many=True, context={'request': request})
         return Response(serializer.data)
 
 
-
-class GameTypeSerializer(serializers.ModelSerializer):
+class GameTypeSerializer(serializers.HyperlinkedModelSerializer):
     """JSON serializer for game types
 
     Arguments:
@@ -51,4 +47,4 @@ class GameTypeSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = GameType
-        fields = ('id', 'label')
+        fields = ('id', 'url', 'label')
