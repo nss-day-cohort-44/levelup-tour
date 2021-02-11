@@ -39,7 +39,7 @@ class GameTypes(ViewSet):
         return Response(serializer.data)
 
 
-class GameTypeSerializer(serializers.HyperlinkedModelSerializer):
+class GameTypeSerializer(serializers.ModelSerializer):
     """JSON serializer for game types
 
     Arguments:
@@ -47,4 +47,4 @@ class GameTypeSerializer(serializers.HyperlinkedModelSerializer):
     """
     class Meta:
         model = GameType
-        fields = ('id', 'url', 'label')
+        fields = ('id', 'label')
