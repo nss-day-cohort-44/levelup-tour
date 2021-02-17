@@ -96,6 +96,16 @@ class Events(ViewSet):
         """
         events = Event.objects.all()
 
+        authenticated_user = Gamer.objects.get(user=request.auth.user)
+
+        for current_event in events:
+            try:
+                EventGamers.objects.get(event=current_event, gamer=authenticated_user)
+                current_event.joined = True
+            except EventGamers.DoesNotExist as ex:
+                current_event.joined = False
+
+
         # Support filtering events by game
         game = self.request.query_params.get('gameId', None)
         if game is not None:
@@ -105,7 +115,7 @@ class Events(ViewSet):
             events, many=True, context={'request': request})
         return Response(serializer.data)
 
-    @action(methods=['get', 'post', 'delete'], detail=True)
+    @action(methods=['post', 'delete'], detail=True)
     def signup(self, request, pk=None):
         """Managing gamers signing up for events"""
 
@@ -198,5 +208,5 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ('id', 'game', 'organizer',
+        fields = ('id', 'game', 'organizer', 'joined',
                   'description', 'date', 'time')
